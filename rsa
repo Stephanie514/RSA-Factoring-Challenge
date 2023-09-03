@@ -2,8 +2,7 @@
 
 import sys
 import time
-import random
-from math import gcd
+import math
 
 
 def pollard_rho(n):
@@ -20,71 +19,37 @@ def pollard_rho(n):
     while d == 1:
         x = f(x)
         y = f(f(y))
-        d = gcd(abs(x - y), n)
+        d = math.gcd(abs(x - y), n)
 
     return d
-
-
-def is_prime(n, k=5):
-    if n <= 1:
-        return False
-    if n <= 3:
-        return True
-
-    if n % 2 == 0:
-        return False
-
-    def is_witness(a, n):
-        r, s = 0, n - 1
-        while s % 2 == 0:
-            r += 1
-            s //= 2
-        x = pow(a, s, n)
-        if x == 1 or x == n - 1:
-            return False
-        for _ in range(r - 1):
-            x = pow(x, 2, n)
-            if x == n - 1:
-                return False
-        return True
-
-    for _ in range(k):
-        a = random.randint(2, n - 2)
-        if gcd(a, n) != 1 or is_witness(a, n):
-            return False
-
-    return True
 
 
 def main():
     if len(sys.argv) != 2:
         print("Usage: factors <file>")
-        return
+        sys.exit(1)
 
     input_file = sys.argv[1]
 
     try:
         with open(input_file, 'r') as f:
-            lines = f.readlines()
+            num = int(f.read().strip())
 
         start_time = time.time()
+        factor = pollard_rho(num)
 
-        for line in lines:
-            num = int(line.strip())
-            factor = pollard_rho(num)
+        if factor == num:
+            print(f"{num} is prime.")
+        else:
+            print(f"{num}={factor}*{num // factor}")
 
-            if is_prime(factor):
-                print(f"{num}={factor}*{num // factor}")
-            else:
-                print(f"Failed to factor {num} in a timely manner.")
-
-            if time.time() - start_time > 5:
-                print("Time limit exceeded")
-                return
+        if time.time() - start_time > 5:
+            print("Time limit exceeded")
+            return
 
     except FileNotFoundError:
         print(f"File not found: {input_file}")
-        return
+        sys.exit(1)
 
 
 if __name__ == '__main__':
