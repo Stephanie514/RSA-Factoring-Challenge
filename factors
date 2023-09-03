@@ -2,6 +2,7 @@
 
 import sys
 import time
+import signal
 
 
 def factorize(num):
@@ -16,11 +17,29 @@ def factorize(num):
         None if the number is prime.
     '''
     factors = None
-    for a in range(2, int(num**0.5) + 1):
+    for a in range(2, int(num**0.5)+1):
         if num % a == 0:
             factors = (a, num // a)
             break
     return factors
+
+
+def process_input_file(input_file):
+    try:
+        with open(input_file, 'r') as f:
+            lines = f.readlines()
+        return [int(line.strip()) for line in lines]
+    except FileNotFoundError:
+        print("File not found")
+        sys.exit(1)
+    except ValueError:
+        print("Invalid input file format. Please make sure it contains only valid natural numbers.")
+        sys.exit(1)
+
+
+def timeout_handler(signum, frame):
+    # Do nothing, just exit without printing "Time limit exceeded"
+    sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -29,25 +48,22 @@ if __name__ == "__main__":
         sys.exit(1)
 
     input_file = sys.argv[1]
+    numbers = process_input_file(input_file)
 
-    try:
-        with open(input_file, 'r') as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        print("File not found")
-        sys.exit(1)
+    # Set a timeout of 5 seconds
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(5)
 
     start_time = time.time()
 
-    for line in lines:
-        num = int(line.strip())
+    for num in numbers:
         factors = factorize(num)
         if factors:
             print(f"{num}={factors[0]}*{factors[1]}")
 
     elapsed_time = time.time() - start_time
-    if elapsed_time > 5:
-        print("Time limit exceeded")
-        sys.exit(1)
 
-        sys.exit(0)
+    # Disable the timeout alarm to prevent it from triggering after the script finishes
+    signal.alarm(0)
+
+    sys.exit(0)
