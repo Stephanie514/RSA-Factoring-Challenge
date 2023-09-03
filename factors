@@ -16,7 +16,7 @@ def factorize(num):
         None if the number is prime.
     '''
     factors = None
-    for a in range(2, int(num**0.5)+1):
+    for a in range(2, int(num**0.5) + 1):
         if num % a == 0:
             factors = (a, num // a)
             break
