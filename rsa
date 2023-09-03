@@ -4,21 +4,25 @@ import sys
 import time
 import math
 
-def is_prime(num):
-    if num < 2:
-        return False
-    for i in range(2, int(math.sqrt(num)) + 1):
-        if num % i == 0:
-            return False
-    return True
 
-def factorize(num):
-    factors = None
-    for a in range(2, num):
-        if num % a == 0 and is_prime(a) and is_prime(num // a):
-            factors = (a, num // a)
-            break
-    return factors
+def pollard_rho(n):
+    if n % 2 == 0:
+        return 2
+
+    def f(x):
+        return (x**2 + 1) % n
+
+    x = 2
+    y = 2
+    d = 1
+
+    while d == 1:
+        x = f(x)
+        y = f(f(y))
+        d = math.gcd(abs(x - y), n)
+
+    return d
+
 
 def main():
     if len(sys.argv) != 2:
@@ -33,15 +37,17 @@ def main():
 
         for line in lines:
             num = int(line.strip())
-            factors = factorize(num)
-            if factors:
-                print(f"{num}={factors[0]}*{factors[1]}")
-            else:
+            factor = pollard_rho(num)
+
+            if factor == num:
                 print(f"{num} is prime.")
+            else:
+                print(f"{num}={factor}*{num // factor}")
 
     except FileNotFoundError:
         print(f"File not found: {input_file}")
         return
+
 
 if __name__ == '__main__':
     main()
