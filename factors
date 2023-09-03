@@ -8,6 +8,7 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.ERROR)
 
+
 def factorize(num):
     '''
     Takes a number as input.
@@ -26,6 +27,7 @@ def factorize(num):
             break
     return factors
 
+
 def process_input_file(input_file):
     try:
         with open(input_file, 'r') as f:
@@ -38,9 +40,11 @@ def process_input_file(input_file):
         logging.error("Invalid input file format. Please make sure it contains only valid natural numbers.")
         sys.exit(1)
 
+
 def timeout_handler(signum, frame):
     logging.error("Time limit exceeded")
     sys.exit(2)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
