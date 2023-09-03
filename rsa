@@ -1,52 +1,50 @@
 #!/usr/bin/python3
 
 import sys
-import time
 import math
 
 
-def pollard_rho(n):
-    if n % 2 == 0:
-        return 2
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
 
-    def f(x):
-        return (x**2 + 1) % n
 
-    x = 2
-    y = 2
-    d = 1
+def factorize(num):
+    if is_prime(num):
+        return f"{num} is prime."
 
-    while d == 1:
-        x = f(x)
-        y = f(f(y))
-        d = math.gcd(abs(x - y), n)
-
-    return d
+    for i in range(2, num + 1):
+        if num % i == 0 and is_prime(i) and is_prime(num // i):
+            return f"{num}={i}*{num // i}"
 
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: factors <file>")
+        print("Usage: rsa <filename>")
         return
 
-    input_file = sys.argv[1]
+    filename = sys.argv[1]
 
     try:
-        with open(input_file, 'r') as f:
-            lines = f.readlines()
-
-        for line in lines:
-            num = int(line.strip())
-            factor = pollard_rho(num)
-
-            if factor == num:
-                print(f"{num} is prime.")
-            else:
-                print(f"{num}={factor}*{num // factor}")
+        with open(filename, 'r') as file:
+            num = int(file.readline().strip())
+            result = factorize(num)
+            print(result)
 
     except FileNotFoundError:
-        print(f"File not found: {input_file}")
-        return
+        print(f"File not found: {filename}")
+    except ValueError:
+        print(f"Invalid number in {filename}")
 
 
 if __name__ == '__main__':
